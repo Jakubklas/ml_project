@@ -1,22 +1,24 @@
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pandas as pd
 import pickle as pkl
 
 path = r"/Users/jakubklas/Documents/Code/ml_project/data.csv"
-data = pd.read_csv(path)[["height", "weigth", "shoe_size"]]
+data = pd.read_csv(path)[["height", "weigth", "shoe_size", "gender"]]
 
-X = data.drop("shoe_size", axis = 1)
-y = data["shoe_size"]
+X = data.drop("gender", axis = 1)
+y = data["gender"]
 
-model = LinearRegression()
+model = RandomForestClassifier()
 model.fit(X, y)
-
-def predict_value(value: float) -> float:
-    return model.predict(np.array([[value]]))[0]
-
-
 """
-with open(path, "w") as file:
-    pickle.save(model)
+with open(path, 'wb'):
+    pkl.dump(model)
 """
+def predict_values(features: list[list[float]]) -> list[float]:
+    array = np.array(features)
+    return model.predict(array)
+
+def predict_probas(features: list[list[float]]) -> list[float]:
+    array = np.array(features)
+    return model.predict_proba(array)
