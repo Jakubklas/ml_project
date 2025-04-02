@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from model import predict_values, predict_probas
+from model import predict_class, predict_proba
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -8,15 +8,17 @@ app = FastAPI()
 def get_response():
     return {"message": "Hello World!"}
 
+# Checks for the right calling format
+class InputFormat(BaseModel):
+    features: list[list[float]]
 
-class PredictionInput(BaseModel):
-    x: list[list[float]]
-
-@app.post("/predict")
-def predict(batch: PredictionInput) -> dict:
-    classes = predict_values(batch.x)
-    probas = predict_probas(batch.x)
+# Predict classes
+@app.post("/classes")
+def predictions(input: InputFormat) -> dict:
+    prediction = predict_class(input.features)[0]
+    proba = max(predict_proba(input.features)[0])
     return {
-        "predictions": classes.tolist(),
-        "probabilities": probas.tolist()
-        }
+        "predictions": [prediction, proba]
+    }
+
+# Predict probabilities
